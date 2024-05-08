@@ -1,110 +1,90 @@
-import React, { useState, useEffect, useRef } from "react";
-import "./App.css";
-import SearchBar from "./components/SearchBar/SearchBar";
-import Loader from "./components/Loader/Loader";
+// === Библиотечные модули ===
+import { useState, useEffect } from "react";
+
+// ===Компоненты проекта===
 import ErrorMessage from "./components/ErrorMessage/ErrorMessage";
 import ImageGallery from "./components/ImageGallery/ImageGallery";
-import { getPhotos } from "./service/api";
+import Loader from "./components/Loader/Loader";
 import LoadMoreBtn from "./components/LoadMoreBtn/LoadMoreBtn";
-import { ImageModal } from "./components/ImageModal/ImageModal";
-import ScrollUp from "./components/ScrollUp/ScrollUp";
-import ScrollIntoView from 'react-scroll-into-view'
-import axios from 'axios';
+import SearchBar from "./components/SearchBar/SearchBar";
+import ImageModal from "./components/ImageModal/ImageModal";
 
-const App = () => {
-  const [photos, setPhotos] = useState(null);
-  const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [scrollBtn, setScrollBtn] = useState(false);
-  // const lastImageRef = useRef(null);
+// === Services ===
+import fetchData from "./services/API";
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.innerWidth > 900) {
-        const isScrollBtnVisible = window.scrollY > 200;
-        setScrollBtn(isScrollBtnVisible);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
+function App() {
+  const [photosToShow, setPhotosToShow] = useState(null);
+  const [page, setPage] = useState(0);
+  const [query, setQuery] = useState("");
+  const [total_pages, setTotal_pages] = useState(0);
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(false);
+  const [bigImage, setBigImage] = useState({});
+
+  const handleQuery = (searchTerm) => {
+    setQuery(searchTerm);
+    setPhotosToShow([]);
+    setPage(1);
+  };
+
+  const handleSearchPage = () => {
+    setPage((prev) => prev + 1);
+  };
 
   useEffect(() => {
     if (!query) return;
-    async function handleSearch() {
+
+    setIsLoading(true);
+
+    const asyncWrapper = async (query, page) => {
       try {
-        setLoading(true);
-        setError(false);
-        const data = await getPhotos(query, page);
-        setPhotos(prevPhotos => {
-          if (Array.isArray(prevPhotos)) {
-            return [...prevPhotos, ...data.results];
-          } else {
-            return [...data.results];
-          }
-        });
-        setTotalPages(data.total_pages);
+        const response = await fetchData(query, page);
+
+        setTotal_pages(response.total_pages);
+        setPhotosToShow((prev) => [...prev, ...response.results]);
       } catch (error) {
-        setError(true);
+        setError(error);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
-    }
-    handleSearch();
-    // scrollToLastImage();
+    };
+
+    asyncWrapper(query, page);
   }, [query, page]);
 
-  const handleQuery = (newQuery) => {
-    if (newQuery !== query) {
-      setQuery(newQuery);
-      setPhotos(null);
-      setPage(1);
-      setTotalPages(0);
-    }
-  };
-
-  // const scrollToLastImage = () => {
-  //   if (lastImageRef.current) {
-  //     lastImageRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  //   }
-  // };
-
-  const loadMorePhotos = () => {
-    setPage(prevPage => prevPage + 1);
-    // setScrollBtn(true);
-  };
-
-  const openModal = photo => {
-    setSelectedPhoto(photo);
+  // === Управление модальным окном ===
+  const openModal = (bigImage) => {
+    setIsOpen(true);
+    setBigImage(bigImage);
   };
 
   const closeModal = () => {
-    setSelectedPhoto(null);
-  };
-
-  const onScrollBtn = () => {
-    setScrollBtn(false)
+    setIsOpen(false);
   };
 
   return (
-    <div>
-      <SearchBar onSubmit={handleQuery} />
-      {loading && <Loader />}
-      {error && <ErrorMessage />}
-      {photos !== null && (
-        <ImageGallery photos={photos} handleImageClick={openModal} /*lastImageRef={lastImageRef}*/ />
+    <>
+      <SearchBar handleQuery={handleQuery} />
+      {Array.isArray(photosToShow) && (
+        <ImageGallery gallery={photosToShow} handleModal={openModal} />
       )}
-      {totalPages > page && <LoadMoreBtn loadMorePhotos={loadMorePhotos} />}
-      <ImageModal isOpen={!!selectedPhoto} photo={selectedPhoto} onRequestClose={closeModal} />
-      {scrollBtn && <ScrollIntoView selector="#header"><ScrollUp onScrollBtn={onScrollBtn} /></ScrollIntoView>}
-    </div>
+       {isLoading && <Loader />}
+
+      {page < total_pages && (
+        <LoadMoreBtn handleLoadMore={handleSearchPage} />
+      )}
+     
+      {error && <ErrorMessage />}
+      {modalIsOpen && (
+        <ImageModal
+          isOpen={modalIsOpen}
+          onRequestClose={closeModal}
+          image={bigImage}
+        />
+      )}
+    </>
   );
-};
+}
 
 export default App;

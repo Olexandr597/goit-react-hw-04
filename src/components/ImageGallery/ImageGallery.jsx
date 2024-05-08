@@ -1,23 +1,31 @@
-import React from "react";
+// === Libs modules ===
+// === Components ===
 import ImageCard from "../ImageCard/ImageCard";
-import css from "./ImageGallery.module.css";
+// === Styles
+import styles from "./ImageGalery.module.css";
 
-const ImageGallery = ({ photos, handleImageClick,  }) => {
+export default function ImageGallery({ gallery, handleModal }) {
+  const handleClick = (bigImage) => {
+    handleModal(bigImage);
+  };
+
   return (
-    <ul>
-      {Array.isArray(photos) &&
-      photos.map((photo, index) => {
-        const isLastImage = index === photos.length - 1;
-        return (
-          <li key={photo.id} /*ref={isLastImage ? lastImageRef : null}*/>
-            <ImageCard photo={photo} onClick={() => handleImageClick(photo)}/>
-          </li>
-        );
-      })}
-    </ul>
+    <>
+      <ul className={styles.gridContainer}>
+        {gallery.map(({ id, urls: { small, regular }, description }) => {
+          return (
+            <li className={styles.gridlI} key={id}>
+              <ImageCard
+                src={small}
+                alt={description}
+                onClick={() =>
+                  handleClick({ id, urls: { small, regular }, description })
+                }
+              />
+            </li>
+          );
+        })}
+      </ul>
+    </>
   );
-};
-
-export default ImageGallery;
-
-
+}

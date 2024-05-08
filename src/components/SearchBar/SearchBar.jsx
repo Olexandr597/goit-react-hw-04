@@ -1,55 +1,67 @@
-import React, { useState } from "react";
-import { FiSearch } from "react-icons/fi";
-// import { useState } from 'react';
-import toast, { Toaster } from 'react-hot-toast'
-import css from "./SearchBar.module.css";
+// === Библиотечные модули ===
+import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
-const SearchBar = ({ onSubmit }) => {
-  const [value, setValue] = useState("");
+// === Компоненты проекта ===
+import { FcSearch } from "react-icons/fc";
 
+// === Стили ===
+import styles from "./SearchBar.module.css";
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-  
-    const query = value.trim();
-    if (!query.length) {
-      toast.error('Please, enter your query', {
-        style: {
-          borderRadius: '8px',
-          background: 'linear-gradient(90deg, rgba(205,64,103,0.7826568859965861) 21%, rgba(41,0,255,1) 80%)',
-          color: '#fff',
-        },
-      });
-      return;
-    }
-    onSubmit(query);
+export default function SearchBar({ handleQuery }) {
+  const [searchCriteria, setSearchCriteria] = useState("");
+  const notify = () => toast("Please enter the search criteria");
+
+  const handleChange = (event) => {
+    setSearchCriteria(event.target.value);
   };
-
-
-  const handleChange = (e) => {
-    const { value } = e.target;
-    setValue(value);
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (!searchCriteria) {
+      notify();
+      return;
+    } else {
+      handleQuery(searchCriteria);
+      setSearchCriteria("");
+      
+    }
   };
 
   return (
-    <header id="header">
-      <form onSubmit={handleSubmit}>
+    <header>
+      <Toaster
+        position="top-right"
+        reverseOrder={false}
+        gutter={50}
+        containerClassName=""
+        containerStyle={{}}
+        toastOptions={{
+          // Define default options
+          className: "",
+          duration: 3000,
+          style: {
+            width: "500px",
+            background: "#4da8ff",
+            color: "#fff",
+            fontSize: "20px",
+          },
+        }}
+      />
+      <form className={styles.container} onSubmit={handleSubmit}>
+        <button className={styles.button} type="submit">
+          <FcSearch className={styles.icon} />
+        </button>
         <input
+          className={styles.input}
+          id="search"
           type="text"
-          value={value}
-          onChange={handleChange}
           autoComplete="off"
           autoFocus
           placeholder="Search images and photos"
+          name={searchCriteria}
+          onChange={handleChange}
         />
-        <button className={css.searchBtn} type="submit" >
-          <FiSearch size="16px" />
-        </button>
       </form>
-      <Toaster position="top-left" aria-label="Search"/>
     </header>
   );
-};
-
-export default SearchBar;
-
+}

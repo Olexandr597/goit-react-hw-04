@@ -1,18 +1,10 @@
-import React from "react";
-import css from "./ImageCard.module.css";
+// ===Стили===
+import styles from "./ImageCard.module.css";
 
-const ImageCard = ({photo, onClick }) => {
-  const handleClick = () => {
-    onClick(photo);
-};
+export default function ImageCard({ src, alt, onClick }) {
   return (
-      <div className={css.container}>
-          <img src={photo.urls.small} alt={photo.alt_description} onClick={handleClick}/>
-      </div>
-  )
+    <div className={styles.gridItem}>
+      <img className={styles.gridImg} src={src} alt={alt} onClick={onClick} />
+    </div>
+  );
 }
-
-export default ImageCard;
-
-
-

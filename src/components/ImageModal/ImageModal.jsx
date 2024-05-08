@@ -1,41 +1,57 @@
-import React from 'react';
-import Modal from 'react-modal';
-import css from './ImageModal.module.css';
+// === Библиотечные модули ===
+import Modal from "react-modal";
 
-const customStyles = {
-  content: {
-    padding: '0',
-    background: 'unset',
-    overflow: 'unset',
-    border: 'none',
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-};
+// === Стили ===
+import styles from "./ImageModal.module.css";
 
-export const ImageModal = ({ isOpen, photo, onRequestClose }) => {
-  if (!photo) {
-    return null;
-  }
+Modal.setAppElement("#modal-root");
+
+export default function ImageModal({ isOpen, onRequestClose, image }) {
+  const {
+    description,
+    urls: { regular },
+  } = image;
+
+  // margin: 10% auto; /* Отступы по верху и снизу, центрирование по горизонтали */
+  //   padding: 20px;
+  //   background-color: #fefefe; /* Цвет фона контейнера */
+  //   border: 1px solid #888;
+  //   width: 80%; /* Ширина контейнера */
+  //   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); /* Тень */
 
   return (
     <Modal
+      style={{
+        overlay: {
+          width: "100%vw",
+          height: "100%vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+
+          backgroundColor: "rgba(0, 0,0, 0.8)",
+        },
+        content: {
+          marginLeft: "auto",
+          marginRight: "auto",
+          width: "80%",
+          height: "90%",
+          padding: "0",
+          border: "none",
+          overflow: "hidden",
+          borderRadius: "4px",
+          outline: "none",
+        },
+      }}
       isOpen={isOpen}
       onRequestClose={onRequestClose}
-      overlayClassName={css.overlay}
-      style={customStyles}
+      shouldCloseOnEsc={true}
+      shouldCloseOnOverlayClick={true}
+      contentLabel={description}
+      preventScrolling={true}
+      preventScroll={true}
     >
-      <button className={css.closeButton} onClick={onRequestClose}>x</button>
-        <img
-          src={photo.urls.regular}
-          alt={photo.alt_description}
-          className={css.imageModal}
-        />
-
+      <img className={styles.modalImage} src={regular} alt="Seleted image" />
     </Modal>
   );
-};
+}

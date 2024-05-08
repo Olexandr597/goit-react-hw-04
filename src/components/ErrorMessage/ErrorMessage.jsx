@@ -1,9 +1,7 @@
-import React from "react";
-
-const ErrorMessage = ({
-  message = "Oops, something went wrong, please reload the page!😢",
-}) => {
-  return <p>{message}</p>;
-};
-
-export default ErrorMessage;
+// === Стили ===
+import styles from "./ErrorMessage.module.css";
+export default function ErrorMessage() {
+  return (
+    <p className={styles.errorMessage}>Error happened. Please try again</p>
+  );
+}
