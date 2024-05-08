@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_KEY = 'i9wbXvFd-cu6QxKyhooRASCj8VWy50rtQG-9BbauSY4';
+const API_KEY = "_N5BNHZSzetuQdiXiywtfjAps7n05IvKASvxZ6Ug2rk";
 
 axios.defaults.baseURL = 'https://api.unsplash.com/';
 axios.defaults.headers.common['Authorization'] = `Client-ID ${API_KEY}`;
